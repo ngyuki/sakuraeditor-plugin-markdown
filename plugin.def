@@ -1,0 +1,24 @@
+;-------------------------------------------------------------------------------
+; Sakura Editor Markdown Outline Plugin
+; 
+; @author tsyk goto <ngyuki.ts@gmail.com>
+; @link https://github.com/ngyuki/sakuraeditor-plugin-markdown
+; @copyright Copyright 2012 ngyuki (tsyk goto)
+; @license http://www.opensource.org/licenses/mit-license.php MIT License
+;-------------------------------------------------------------------------------
+
+[Plugin]
+Id=net.ngyuki.sakuraeditor.plugin.markdown
+Name=Markdown Outline Plugin
+Description=Markdown Outline Plugin
+Type=wsh
+Author=ngyuki (tsyk goto)
+Version=0.0.0.1
+Url=https://github.com/ngyuki/sakuraeditor-plugin-markdown
+
+[Plug]
+Outline=js\outline.js
+Outline.Label=Markdown
+
+[Wsh]
+UseCache=0
