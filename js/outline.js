@@ -46,7 +46,7 @@
 				Outline.AddFuncInfo2(no, 1, $.trim(prevLine), 1);
 			}
 		}
-		else if (prevLine.match(/^(#+)\s*([^#]*)\s*$/))
+	    else if (prevLine.match(/^(#+)\s*(.*?)(?:#+)?\s*$/))
 		{
 			Outline.AddFuncInfo2(no, 1, RegExp.$2, RegExp.$1.length - 1);
 		}
