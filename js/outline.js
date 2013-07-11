@@ -1,6 +1,6 @@
 /*
  * Sakura Editor Markdown Outline Plugin
- * 
+ *
  * @author tsyk goto <ngyuki.ts@gmail.com>
  * @link https://github.com/ngyuki/sakuraeditor-plugin-markdown
  * @copyright Copyright 2012 ngyuki (tsyk goto)
@@ -9,50 +9,109 @@
 
 (function(){
 
-	var $ = {
-		trim : function (str)
-		{
-			return str.replace(/^\s+/,"").replace(/\s+$/,"");
-		}
-	};
+    function trim(str)
+    {
+        return str.replace(/^\s+/,"").replace(/\s+$/,"");
+    };
 
-	// タイプ → 100:ツリー表示
-	Outline.SetListType(100);
+    function trace(str)
+    {
+        Editor.TraceOut(str);
+    };
 
-	// タイトル
-	Outline.SetTitle("Markdown");
+    // タイプ → 100:ツリー表示
+    Outline.SetListType(100);
 
-	// 行数
-	var lineCount = Editor.GetLineCount(0);
+    // タイトル
+    Outline.SetTitle("Markdown");
 
-	var prevLine = "";
+    // 行数
+    var lineCount = Editor.GetLineCount(0);
 
-	for (var no = 0; no <= lineCount; no++)
-	{
-		// 範囲外を超えても大丈夫？ → 大丈夫っぽいのでそのまま
-		var nextLine = Editor.GetLineStr(no + 1);
-		
-		if (nextLine.match(/^=+\s*$/))
-		{
-			if (prevLine.length > 0)
-			{
-				Outline.AddFuncInfo2(no, 1, $.trim(prevLine), 0);
-			}
-		}
-		else if (nextLine.match(/^-+\s*$/))
-		{
-			if (prevLine.length > 0)
-			{
-				Outline.AddFuncInfo2(no, 1, $.trim(prevLine), 1);
-			}
-		}
-	    else if (prevLine.match(/^(#+)\s*(.*?)(?:#+)?\s*$/))
-		{
-			Outline.AddFuncInfo2(no, 1, RegExp.$2, RegExp.$1.length - 1);
-		}
-		
-		prevLine = nextLine;
-	}
+    // 直前行
+    var prevLine = "";
 
-	//  AddFuncInfo2(論理行, 論理桁, 文字列, 深さ)
+    // アウトラインのリスト
+    var outline = [];
+
+    outline.add = function(row, column, text, level){
+        this.push({
+            row:row,
+            column:column,
+            text:text,
+            level:level
+        });
+    };
+
+    for (var no = 0; no <= lineCount; no++)
+    {
+        // 範囲外を超えても大丈夫？ → 大丈夫っぽいのでそのまま
+        var nextLine = Editor.GetLineStr(no + 1);
+
+        if (nextLine.match(/^=+\s*$/))
+        {
+            if (prevLine.length > 0)
+            {
+                outline.add(no, 1, trim(prevLine), 0);
+            }
+        }
+        else if (nextLine.match(/^-+\s*$/))
+        {
+            if (prevLine.length > 0)
+            {
+                outline.add(no, 1, trim(prevLine), 1);
+            }
+        }
+        else if (prevLine.match(/^(#+)\s*(.*?)(?:#+)?\s*$/))
+        {
+            outline.add(no, 1, RegExp.$2, RegExp.$1.length - 1);
+        }
+
+        prevLine = nextLine;
+    }
+
+    (function(){
+        var level = null;
+
+        // 最上位のレベルを導出
+        for (var i=0, len=outline.length; i<len; i++)
+        {
+            var ol = outline[i];
+            var lv = ol.level;
+
+            if (level == null)
+            {
+                level = lv;
+            }
+            else
+            {
+                level = Math.min(level, lv);
+            }
+        }
+
+        for (var i=0, len=outline.length; i<len; i++)
+        {
+            var ol = outline[i];
+            ol.level -= level;
+        }
+    }());
+
+    (function(){
+        var level = -1;
+
+        for (var i=0, len=outline.length; i<len; i++)
+        {
+            var ol = outline[i];
+            var reqLevel = ol.level - 1;
+
+            for (; level < reqLevel; level++)
+            {
+                // レベルが飛んだ場合は適当に保管する
+                Outline.AddFuncInfo2(ol.row, ol.column, "no label", level + 1);
+            }
+
+            Outline.AddFuncInfo2(ol.row, ol.column, ol.text, ol.level);
+        }
+    }());
+
 })();
