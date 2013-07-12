@@ -102,13 +102,15 @@
         for (var i=0, len=outline.length; i<len; i++)
         {
             var ol = outline[i];
-            var reqLevel = ol.level - 1;
+            var req = ol.level - 1;
 
-            for (; level < reqLevel; level++)
+            for (; level < req; level++)
             {
-                // レベルが飛んだ場合は適当に保管する
+                // レベルが飛んだ場合は適当な項目を補完
                 Outline.AddFuncInfo2(ol.row, ol.column, "no label", level + 1);
             }
+
+            level = ol.level;
 
             Outline.AddFuncInfo2(ol.row, ol.column, ol.text, ol.level);
         }
