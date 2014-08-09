@@ -31,6 +31,9 @@
     // 直前行
     var prevLine = "";
 
+    // コードブロック
+    var isCodelock = false;
+
     // アウトラインのリスト
     var outline = [];
 
@@ -48,7 +51,14 @@
         // 範囲外を超えても大丈夫？ → 大丈夫っぽいのでそのまま
         var nextLine = Editor.GetLineStr(no + 1);
 
-        if (nextLine.match(/^=+\s*$/))
+        if (isCodelock)
+        {
+            if (prevLine.match(/^```/))
+            {
+                isCodelock = false;
+            }
+        }
+        else if (nextLine.match(/^=+\s*$/))
         {
             if (prevLine.length > 0)
             {
@@ -65,6 +75,10 @@
         else if (prevLine.match(/^(#+)\s*(.*?)(?:#+)?\s*$/))
         {
             outline.add(no, 1, RegExp.$2, RegExp.$1.length - 1);
+        }
+        else if (prevLine.match(/^```/))
+        {
+            isCodelock = true;
         }
 
         prevLine = nextLine;
